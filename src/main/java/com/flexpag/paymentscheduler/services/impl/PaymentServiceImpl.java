@@ -1,6 +1,7 @@
 package com.flexpag.paymentscheduler.services.impl;
 
 import com.flexpag.paymentscheduler.common.exception.EmptyFieldException;
+import com.flexpag.paymentscheduler.common.exception.InvalidDateException;
 import com.flexpag.paymentscheduler.common.exception.NotFoundException;
 import com.flexpag.paymentscheduler.common.exception.PaymentStatusException;
 import com.flexpag.paymentscheduler.domain.entities.Payment;
@@ -51,12 +52,12 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Override
     public PaymentDTO update(Integer id, PaymentDTO dto) {
-        PaymentDTO payment = findById(id);
-        statusIsPaid(payment);
-
         if (dto.getScheduled().isEmpty()) {
             throw new EmptyFieldException("Field (scheduled) required.");
         }
+        PaymentDTO payment = findById(id);
+        statusIsPaid(payment);
+
         Payment convertPayment = convertPaymentDTOIntoPayment(payment);
         convertPayment.setScheduled(convertStringToDate(dto.getScheduled()));
         Payment paymentSave = paymentRepository.saveAndFlush(convertPayment);
@@ -85,16 +86,17 @@ public class PaymentServiceImpl implements IPaymentService {
     }
 
     public Instant convertStringToDate(String date) {
-
        try {
            if (date != null) {
-               Date newDate = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+               Date newDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(date);
                return newDate.toInstant();
            }
-           return Instant.now();
+           String dateNow = Instant.now().toString();
+           Date format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(dateNow);
+           return format.toInstant();
+
        } catch (ParseException e) {
-           e.printStackTrace();
-           return null;
+           throw new InvalidDateException("Invalid date! required pattern is (yyyy-MM-dd'T'HH:mm:ss)");
        }
     }
 

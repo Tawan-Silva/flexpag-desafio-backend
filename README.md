@@ -53,6 +53,9 @@ A aplicação já está com o pre setup default.
 - spring-boot-starter-web
 - spring-boot-starter-data-jpa
 - spring-boot-devtools
+- spring-boot-starter-validation
+- springfox-boot-starter
+- springfox-swagger-ui
 - h2
 - lombok
 

@@ -1,6 +1,7 @@
 package com.flexpag.paymentscheduler.rest.controller.exceptions;
 
 import com.flexpag.paymentscheduler.common.exception.EmptyFieldException;
+import com.flexpag.paymentscheduler.common.exception.InvalidDateException;
 import com.flexpag.paymentscheduler.common.exception.NotFoundException;
 import com.flexpag.paymentscheduler.common.exception.PaymentStatusException;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,18 @@ public class ApplicationControllerAdvice {
     @ExceptionHandler(PaymentStatusException.class)
     public ResponseEntity<StandardError> handlePaymentStatusException(
             PaymentStatusException ex, HttpServletRequest req) {
-        String error = "Not Found";
+        String error = "Payment Status Invalid";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err =
+                new StandardError(Instant.now(), status.value(), error, ex.getMessage(), req.getRequestURI());
+
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(InvalidDateException.class)
+    public ResponseEntity<StandardError> handleInvalidDateException(
+            InvalidDateException ex, HttpServletRequest req) {
+        String error = "Invalid date!";
         HttpStatus status = HttpStatus.BAD_REQUEST;
         StandardError err =
                 new StandardError(Instant.now(), status.value(), error, ex.getMessage(), req.getRequestURI());
